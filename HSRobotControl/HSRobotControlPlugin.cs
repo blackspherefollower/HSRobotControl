@@ -9,6 +9,8 @@ using Manager;
 using IllusionUtility.GetUtility;
 using System.Configuration;
 using System.Reflection;
+using Buttplug4Net35;
+using Buttplug4Net35.Messages;
 
 namespace HSRobotControl
 {
@@ -26,7 +28,7 @@ namespace HSRobotControl
         public string Name { get; } = "HSRobotControl";
 
         /// Gets the version of the plugin.
-        public string Version { get; } = "1.0";
+        public string Version { get; } = "2.0";
 
         // Stopwatch for ms timing
         private Stopwatch sw = Stopwatch.StartNew();
@@ -38,9 +40,9 @@ namespace HSRobotControl
         private int maleIndex = 0;
 
         // Configuration variables below from HSRobotControl.dll.config
-        private SerialPort serialPort = null;
         private int serialPortBaudRate;
         private string serialPortName;
+        private string buttplugUrl;
         private float robotUpdateFrequency;
         private bool autoRange;
         private float autoRangeTime;
@@ -64,6 +66,10 @@ namespace HSRobotControl
         private float[] targetDistances;
         private float targetDistanceRangeThreshold;
 
+        // Haptics interfaces
+        private SerialPort serialPort = null;
+        private ButtplugWSClient bpClient = null;
+
         // Updates the positions based on the distance from the closest female chara's targets (bones) to the chara male's penis (bone)
         // If a female chara target (bone) priority exists and in the target range then it is used instead of the closest target (bone)
         private void UpdatePositions()
@@ -77,10 +83,10 @@ namespace HSRobotControl
             femaleCount = females.Count();
             maleCount = males.Count();
 
-            if (charaDiagnostics >= (int) CharDiagLevel.BASIC)
+            /*if (charaDiagnostics >= (int) CharDiagLevel.BASIC)
             {
                 Console.WriteLine($"Females: {femaleCount}, Males: {maleCount}");
-            }
+            }*/
 
             // If there is at least one female and male chara in the current scene then find the
             // nearest female chara's target (bone) to the male chara's penis target (bone)
@@ -292,24 +298,65 @@ namespace HSRobotControl
             }
 
             UpdateSerial(targetDistances[minIndex], distanceRangeMin, distanceRangeMax);
+            UpdateButtplug(targetDistances[minIndex], distanceRangeMin, distanceRangeMax);
         }
 
         private void UpdateSerial(float distance, float distanceRangeMin, float distanceRangeMax)
         {
             try
             {
-                // Serial port robot command schema: "<distance from female target to male's penis> <female target's distance range min> <female target's distance range max>"
-                var command = $"{distance} {distanceRangeMin} {distanceRangeMax}";
-
-                if (hapticDiagnostics)
-                {
-                    Console.WriteLine($"Command: {command}");
-                }
-
                 // If serial port is open then send the command to the robot
                 if (serialPort?.IsOpen == true)
                 {
+                    // Serial port robot command schema: "<distance from female target to male's penis> <female target's distance range min> <female target's distance range max>"
+                    var command = $"{distance} {distanceRangeMin} {distanceRangeMax}";
+
+                    if (hapticDiagnostics)
+                    {
+                        Console.WriteLine($"Command: {command}");
+                    }
+
                     serialPort.WriteLine(command);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error: {e}");
+            }
+        }
+
+        private void UpdateButtplug(float distance, float distanceRangeMin, float distanceRangeMax)
+        {
+            if (bpClient?.IsConnected != true)
+            {
+                return;
+            }
+
+            var range = distanceRangeMax - distanceRangeMin;
+            var offset = distance - distanceRangeMin;
+            var pcent = offset / range;
+            pcent = Math.Min(Math.Max(pcent, 0), 1);
+
+            try
+            {
+                foreach (var dev in bpClient.Devices)
+                {
+                    if (!dev.AllowedMessages.ContainsKey("LinearCmd"))
+                    {
+                        continue;
+                    }
+
+                    if (hapticDiagnostics)
+                    {
+                        Console.WriteLine($"Sending LinearCmd to {dev.Name} ({dev.Index}): Moving to {pcent} in {robotUpdateFrequency}ms");
+                    }
+
+                    var count = dev.AllowedMessages["LinearCmd"].FeatureCount ?? 1;
+                    var vectors = new List<LinearCmd.VectorSubcommand>();
+                    for(uint i = 0; i < count; i++)
+                        vectors.Add(new LinearCmd.VectorSubcommand(i, Convert.ToUInt16(robotUpdateFrequency), pcent));
+
+                    bpClient.SendDeviceMessage(dev, new LinearCmd(dev.Index, vectors));
                 }
             }
             catch (Exception e)
@@ -362,6 +409,7 @@ namespace HSRobotControl
                 charaDiagnostics = Convert.ToInt16(appSettings.Settings["charaDiagnostics"].Value);
                 configDiagnostics = Convert.ToBoolean(appSettings.Settings["configDiagnostics"].Value);
                 hapticDiagnostics = Convert.ToBoolean(appSettings.Settings["hapticDiagnostics"].Value);
+                buttplugUrl = appSettings.Settings["buttplugUrl"].Value;
 
                 // Setup variables based on current configuration
                 var autoRangeLength = (int)(autoRangeTime * robotUpdateFrequency);
@@ -435,6 +483,40 @@ namespace HSRobotControl
                 }
             }
 
+            // Open and close the serial port connection when Control+K is pressed on the keyboard
+            if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.I))
+            {
+                try
+                {
+                    if (bpClient?.IsConnected == true)
+                    {
+                        // Close the serial port connection
+                        bpClient.Disconnect();
+                        bpClient = null;
+                        Console.WriteLine("BP connection is closed.");
+                    }
+                    else
+                    {
+                        // Open the serial port connection
+                        bpClient = new ButtplugWSClient($"{Name} {Version}");
+                        bpClient.Connect(new Uri(buttplugUrl), true);
+                        Console.WriteLine($"Connected to Buttplug ser at {buttplugUrl}");
+
+                        if (bpClient.StartScanning().Result)
+                        {
+                            Console.WriteLine("Buttplug Scanning started");
+                        }
+
+                        bpClient.ErrorReceived += (sender, args) => Console.WriteLine($"Buttplug Error: {args.Message}\n{args.Exception}");
+                        bpClient.Log += (sender, args) => Console.WriteLine($"Buttplug Event: {args.Message}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Buttplug Error: {e}");
+                }
+            }
+
             // Cycle the female index value based on available female chara in the current scene when Control+C is pressed on the keyboard
             if ((Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)) && Input.GetKeyDown(KeyCode.C))
             {
@@ -498,7 +580,7 @@ namespace HSRobotControl
 
             // If the ms elapsed is greater than the period based on the robot's update frequency then
             // stop the stopwatch, call the robot update function, and restart the stopwatch
-            if (msElapsed < 1000.0 / robotUpdateFrequency)
+            if (msElapsed < robotUpdateFrequency)
             {
                 return;
             }
@@ -507,7 +589,7 @@ namespace HSRobotControl
 
             if (configDiagnostics)
             {
-                Console.WriteLine($"Time taken: {msElapsed}ms, Frequency: {1000.0 / msElapsed}Hz");
+                Console.WriteLine($"Time taken: {msElapsed}ms, Frequency: {msElapsed/1000}Hz");
             }
 
             UpdatePositions();
