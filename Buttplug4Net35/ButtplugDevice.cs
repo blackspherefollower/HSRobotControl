@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Buttplug4Net35.Messages;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -29,13 +28,11 @@ namespace Buttplug4Net35
         /// <summary>
         /// Gets the logger
         /// </summary>
-        [NotNull]
         protected readonly IButtplugLog BpLogger;
 
         /// <summary>
         /// Gets the message handler functions
         /// </summary>
-        [NotNull]
         protected readonly Dictionary<Type, ButtplugDeviceWrapper> MsgFuncs;
 
         private bool _isDisconnected;
@@ -77,9 +74,9 @@ namespace Buttplug4Net35
         /// <param name="aLogManager">The log manager</param>
         /// <param name="aName">The device name</param>
         /// <param name="aIdentifier">The device identifier</param>
-        protected ButtplugDevice([NotNull] IButtplugLogManager aLogManager,
-            [NotNull] string aName,
-            [NotNull] string aIdentifier)
+        protected ButtplugDevice(IButtplugLogManager aLogManager,
+            string aName,
+            string aIdentifier)
         {
             BpLogger = aLogManager.GetLogger(GetType());
             MsgFuncs = new Dictionary<Type, ButtplugDeviceWrapper>();
@@ -116,7 +113,7 @@ namespace Buttplug4Net35
         }
 
         /// <inheritdoc />
-        public Task<ButtplugMessage> ParseMessage([NotNull] ButtplugDeviceMessage aMsg)
+        public Task<ButtplugMessage> ParseMessage(ButtplugDeviceMessage aMsg)
         {
             return new Task<ButtplugMessage>(() =>
             {

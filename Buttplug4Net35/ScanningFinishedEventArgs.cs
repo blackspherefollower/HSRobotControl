@@ -1,6 +1,5 @@
 ﻿using System;
 using Buttplug4Net35.Messages;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -13,7 +12,6 @@ namespace Buttplug4Net35
         /// <summary>
         /// The Buttplug ScanningFinished message.
         /// </summary>
-        [NotNull]
         public readonly ScanningFinished Message;
 
         /// <summary>

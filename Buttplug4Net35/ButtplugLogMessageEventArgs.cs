@@ -1,6 +1,5 @@
 ﻿using System;
 using Buttplug4Net35.Messages;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -12,7 +11,6 @@ namespace Buttplug4Net35
         /// <summary>
         /// Log message.
         /// </summary>
-        [NotNull]
         public Log LogMessage { get; }
 
         /// <summary>

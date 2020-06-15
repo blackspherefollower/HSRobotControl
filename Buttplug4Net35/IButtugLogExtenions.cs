@@ -1,5 +1,4 @@
 ﻿using Buttplug4Net35.Messages;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -26,7 +25,6 @@ namespace Buttplug4Net35
         /// <param name="aCode">Error class for message</param>
         /// <param name="aMsg">Error description for message</param>
         /// <returns>A new Error Buttplug message</returns>
-        [NotNull]
         public static Error LogErrorMsg(this IButtplugLog logger, uint aId, Error.ErrorClass aCode, string aMsg)
         {
             logger.Error(aMsg);
@@ -51,7 +49,6 @@ namespace Buttplug4Net35
         /// <param name="aCode">Error class for message</param>
         /// <param name="aMsg">Error description for message</param>
         /// <returns>A new Error Buttplug message</returns>
-        [NotNull]
         public static Error LogWarnMsg(this IButtplugLog logger, uint aId, Error.ErrorClass aCode, string aMsg)
         {
             logger.Warn(aMsg);

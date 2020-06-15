@@ -1,6 +1,5 @@
 ﻿using System;
 using Buttplug4Net35.Messages;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -13,13 +12,11 @@ namespace Buttplug4Net35
         /// <summary>
         /// The Buttplug Error message.
         /// </summary>
-        [NotNull]
         public readonly Error Message;
 
         /// <summary>
         /// The exception raised.
         /// </summary>
-        [NotNull]
         public readonly Exception Exception;
 
         /// <summary>

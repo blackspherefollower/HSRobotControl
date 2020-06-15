@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -31,7 +30,6 @@ namespace Buttplug4Net35
         /// <summary>
         /// The client representation of a Buttplug Device.
         /// </summary>
-        [NotNull]
         public readonly ButtplugClientDevice Device;
 
         /// <summary>

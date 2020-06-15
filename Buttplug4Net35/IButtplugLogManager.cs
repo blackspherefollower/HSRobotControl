@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -24,7 +23,6 @@ namespace Buttplug4Net35
         /// </summary>
         /// <param name="aType">Type that this logger will be for</param>
         /// <returns>Buttplug logger object</returns>
-        [NotNull]
         IButtplugLog GetLogger(Type aType);
     }
 }

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Buttplug4Net35.Messages;
-using JetBrains.Annotations;
 using WebSocket4Net;
 
 namespace Buttplug4Net35
@@ -19,58 +18,49 @@ namespace Buttplug4Net35
         /// <summary>
         /// Used for converting messages between JSON and Objects.
         /// </summary>
-        [NotNull]
         private readonly ButtplugJsonMessageParser _parser;
 
         /// <summary>
         /// Global logger instance for the client.
         /// </summary>
         // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable
-        [NotNull]
         private readonly IButtplugLog _bpLogger;
 
         /// <summary>
         /// Guards re-entrancy of websocket message sending function.
         /// </summary>
-        [NotNull]
         private readonly object _sendLock = new object();
 
         /// <summary>
         /// Name of the client, used for server UI/permissions.
         /// </summary>
-        [NotNull]
         private readonly string _clientName;
 
         /// <summary>
         /// Used for cancelling out of websocket wait loops.
         /// </summary>
-        [NotNull]
         private readonly CancellationTokenSource _tokenSource;
 
         /// <summary>
         /// Used for dispatching events to the owning application context.
         /// </summary>
-        [NotNull]
         private readonly SynchronizationContext _owningDispatcher;
 
         /// <summary>
         /// Stores messages waiting for reply from the server.
         /// </summary>
-        [NotNull]
         private readonly ConcurrentDictionary<uint, TaskCompletionSource<ButtplugMessage>> _waitingMsgs =
             new ConcurrentDictionary<uint, TaskCompletionSource<ButtplugMessage>>();
 
         /// <summary>
         /// Stores information about devices currently connected to the server.
         /// </summary>
-        [NotNull]
         private readonly ConcurrentDictionary<uint, ButtplugClientDevice> _devices =
             new ConcurrentDictionary<uint, ButtplugClientDevice>();
 
         /// <summary>
         /// Websocket access object.
         /// </summary>
-        [CanBeNull]
         private WebSocket _ws;
 
         /// <summary>
@@ -80,7 +70,6 @@ namespace Buttplug4Net35
         /// Sends a ping message to the server whenever the timer triggers. Usually runs at
         /// (requested ping interval / 2).
         /// </remarks>
-        [CanBeNull]
         private Timer _pingTimer;
 
         private int _counter;

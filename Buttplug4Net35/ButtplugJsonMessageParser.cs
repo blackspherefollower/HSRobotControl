@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Buttplug4Net35.Messages;
-using JetBrains.Annotations;
 using LitJson;
 using UnityEngine;
 using Ping = Buttplug4Net35.Messages.Ping;
@@ -15,7 +14,6 @@ namespace Buttplug4Net35
     /// </summary>
     public class ButtplugJsonMessageParser
     {
-        [NotNull]
         private readonly Dictionary<string, Type> _messageTypes;
 
         private readonly IButtplugLog _bpLogger;
@@ -59,7 +57,6 @@ namespace Buttplug4Net35
         /// </summary>
         /// <param name="aJsonMsg">String containing one or more Buttplug messages in JSON format</param>
         /// <returns>Array of <see cref="ButtplugMessage"/> objects</returns>
-        [NotNull]
         public ButtplugMessage[] Deserialize(string aJsonMsg)
         {
             _bpLogger?.Trace($"Got JSON Message: {aJsonMsg}");
@@ -153,6 +150,7 @@ namespace Buttplug4Net35
                     }
                 }
             }
+            _bpLogger?.Trace($"Found messages: {res.Count}");
             return res.ToArray();
         }
 
@@ -162,7 +160,7 @@ namespace Buttplug4Net35
         /// <param name="aMsg"><see cref="ButtplugMessage"/> object</param>
         /// <param name="clientSchemaVersion">Target schema version</param>
         /// <returns>JSON string representing a Buttplug message</returns>
-        public string Serialize([NotNull] ButtplugMessage aMsg, uint clientSchemaVersion)
+        public string Serialize(ButtplugMessage aMsg, uint clientSchemaVersion)
         {
             return Serialize(new [] {aMsg}, clientSchemaVersion);
         }
@@ -173,7 +171,7 @@ namespace Buttplug4Net35
         /// <param name="aMsgs">A collection of ButtplugMessage objects</param>
         /// <param name="clientSchemaVersion">The target schema version</param>
         /// <returns>A JSON string representing one or more Buttplug messages</returns>
-        public string Serialize([NotNull] IEnumerable<ButtplugMessage> aMsgs, uint clientSchemaVersion)
+        public string Serialize(IEnumerable<ButtplugMessage> aMsgs, uint clientSchemaVersion)
         {
             Console.WriteLine($"Type: {aMsgs.GetType()}, Size: {aMsgs.Count()}");
             if (!aMsgs.Any())
@@ -187,43 +185,41 @@ namespace Buttplug4Net35
             {
                 Console.WriteLine($"Type: {msg.GetType()}");
                 if (msg.GetType() == typeof(Ok))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": {" + JsonUtility.ToJson((Ok)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": {" + SimpleJson.SerializeObject((Ok)msg) + "}");
                 else if (msg.GetType() == typeof(Error))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((Error)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((Error)msg) + "}");
                 else if (msg.GetType() == typeof(Ping))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((Ping)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((Ping)msg) + "}");
                 else if (msg.GetType() == typeof(RequestServerInfo))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((RequestServerInfo)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((RequestServerInfo)msg) + "}");
                 else if (msg.GetType() == typeof(RequestDeviceList))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((RequestDeviceList)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((RequestDeviceList)msg) + "}");
                 else if (msg.GetType() == typeof(StartScanning))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((StartScanning)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((StartScanning)msg) + "}");
                 else if (msg.GetType() == typeof(StopScanning))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((StopScanning)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((StopScanning)msg) + "}");
                 else if (msg.GetType() == typeof(StopAllDevices))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((StopAllDevices)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((StopAllDevices)msg) + "}");
                 else if (msg.GetType() == typeof(StopDeviceCmd))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((StopDeviceCmd)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((StopDeviceCmd)msg) + "}");
                 else if (msg.GetType() == typeof(RequestLog))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((RequestLog)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((RequestLog)msg) + "}");
                 else if (msg.GetType() == typeof(SingleMotorVibrateCmd))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((SingleMotorVibrateCmd)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((SingleMotorVibrateCmd)msg) + "}");
                 else if (msg.GetType() == typeof(VibrateCmd))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((VibrateCmd)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((VibrateCmd)msg) + "}");
                 else if (msg.GetType() == typeof(RotateCmd))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((RotateCmd)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((RotateCmd)msg) + "}");
                 else if (msg.GetType() == typeof(LinearCmd))
-                {
                     msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((LinearCmd) msg) + "}");
-                }
                 else if (msg.GetType() == typeof(FleshlightLaunchFW12Cmd))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((FleshlightLaunchFW12Cmd)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((FleshlightLaunchFW12Cmd)msg) + "}");
                 else if (msg.GetType() == typeof(VorzeA10CycloneCmd))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((VorzeA10CycloneCmd)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((VorzeA10CycloneCmd)msg) + "}");
                 else if (msg.GetType() == typeof(KiirooCmd))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((KiirooCmd)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((KiirooCmd)msg) + "}");
                 else if (msg.GetType() == typeof(LovenseCmd))
-                    msgs.Add("{\"" + msg.GetType().Name + "\": " + JsonUtility.ToJson((LovenseCmd)msg) + "}");
+                    msgs.Add("{\"" + msg.GetType().Name + "\": " + SimpleJson.SerializeObject((LovenseCmd)msg) + "}");
             }
 
             var aJsonMsg = "[" + string.Join(",", msgs.ToArray()) + "]";

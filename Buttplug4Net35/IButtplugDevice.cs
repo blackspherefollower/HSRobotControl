@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Buttplug4Net35.Messages;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -14,13 +13,11 @@ namespace Buttplug4Net35
         /// <summary>
         /// Device name.
         /// </summary>
-        [NotNull]
         string Name { get; }
 
         /// <summary>
         /// Device identifier. Something that uniquely identifies this device, such as a Bluetooth Address.
         /// </summary>
-        [NotNull]
         string Identifier { get; }
 
         /// <summary>
@@ -47,7 +44,6 @@ namespace Buttplug4Net35
         /// Allowed message types for this device.
         /// </summary>
         /// <returns>Enumerable of message types</returns>
-        [NotNull]
         IEnumerable<Type> GetAllowedMessageTypes();
 
         /// <summary>
@@ -56,7 +52,6 @@ namespace Buttplug4Net35
         /// </summary>
         /// <param name="aMsg">Device message to handle</param>
         /// <returns>Response, usually <see cref="Ok"/> or <see cref="Error"/>, but can be other types.</returns>
-        [NotNull]
         Task<ButtplugMessage> ParseMessage(ButtplugDeviceMessage aMsg);
 
         /// <summary>
@@ -64,7 +59,6 @@ namespace Buttplug4Net35
         /// similar on-connection setups.
         /// </summary>
         /// <returns>Response, usually <see cref="Ok"/> or <see cref="Error"/>.</returns>
-        [NotNull]
         Task<ButtplugMessage> Initialize();
 
         /// <summary>
@@ -77,7 +71,6 @@ namespace Buttplug4Net35
         /// retreiving information about feature counts in device command messages, etc...
         /// </summary>
         /// <param name="aMsg">Message type to fetch attributes for</param>
-        [NotNull]
         MessageAttributes GetMessageAttrs(Type aMsg);
     }
 }

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Buttplug4Net35.Messages;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -21,13 +20,11 @@ namespace Buttplug4Net35
         /// <summary>
         /// The device name, which usually contains the device brand and model.
         /// </summary>
-        [NotNull]
         public readonly string Name;
 
         /// <summary>
         /// The Buttplug Protocol messages supported by this device, with additional attributes.
         /// </summary>
-        [NotNull]
         public readonly Dictionary<string, MessageAttributes> AllowedMessages;
 
         /// <summary>

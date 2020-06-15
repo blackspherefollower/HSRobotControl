@@ -1,5 +1,4 @@
 ﻿using System;
-using JetBrains.Annotations;
 
 namespace Buttplug4Net35
 {
@@ -19,7 +18,7 @@ namespace Buttplug4Net35
         /// </summary>
         public ButtplugLogLevel Level { private get; set; }
 
-        private void LogMessageHandler([NotNull] object aObject, [NotNull] ButtplugLogMessageEventArgs aMsg)
+        private void LogMessageHandler(object aObject, ButtplugLogMessageEventArgs aMsg)
         {
             if (aMsg.LogMessage.LogLevel <= Level)
             {
@@ -28,7 +27,7 @@ namespace Buttplug4Net35
         }
 
         /// <inheritdoc cref="IButtplugLogManager"/>
-        public IButtplugLog GetLogger([NotNull] Type aType)
+        public IButtplugLog GetLogger(Type aType)
         {
             // Just pass the type in instead of traversing the stack to find it.
             var logger = new ButtplugLog();
